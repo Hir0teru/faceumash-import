@@ -1,14 +1,14 @@
 import * as fs from 'fs'
 
-type Shards = Record<string, { count: number }>
+type Shard = {
+  count: number
+}
 
-type Rating = Record<
-  string,
-  {
-    num_shards: number
-    shards: Shards
+type Rating = {
+  [id: string]: {
+    shards: Record<string, Shard>
   }
->
+}
 
 type Ratings = Array<Rating>
 
@@ -19,16 +19,16 @@ const generateRatingsJSON = (numOfRatings: number): void => {
       console.log(`numOfRatings must be ${max} or less`)
       return
     }
-    const initialRating: number = 1500
-    const numOfShards: number = 5
-    const initialCount: number = initialRating / numOfShards
+    const initialRating = 1500
+    const numOfShards = 5
+    const initialCount = initialRating / numOfShards
 
     const ratings: Ratings = []
 
-    for (let i = 0; i < numOfRatings; i) {
-      const ratingId: string = i.toString().padStart(4, '0')
+    for (let i = 0; i < numOfRatings; i++) {
+      const ratingId = i.toString().padStart(4, '0')
 
-      const shards: Shards = {}
+      const shards: Record<string, Shard> = {}
 
       for (let j = 0; j < numOfShards; j++) {
         shards[j.toString()] = {
@@ -38,8 +38,7 @@ const generateRatingsJSON = (numOfRatings: number): void => {
 
       const rating: Rating = {
         [ratingId]: {
-          num_shards: numOfShards,
-          shards: shards,
+          shards,
         },
       }
 
@@ -57,7 +56,7 @@ const generateRatingsJSON = (numOfRatings: number): void => {
   }
 }
 
-const numOfRatings: string = process.argv[2]
+const numOfRatings = process.argv[2]
 if (Number(numOfRatings)) {
   generateRatingsJSON(Number(numOfRatings))
 } else {
