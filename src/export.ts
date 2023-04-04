@@ -1,7 +1,7 @@
 // export-collection.ts
 import * as fs from 'fs'
 import * as admin from 'firebase-admin'
-import * as serviceAccount from '../secret/secretkey.json'
+const serviceAccount = require('../secret/secretkey.json')
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
