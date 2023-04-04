@@ -17,6 +17,8 @@ mkdir result
 4. Select the target app (Web, iOS, or Android) and scroll to the "Firebase SDK snippet" section.
 5. Choose the "Configuration" option, and the displayed code block will contain the necessary configuration information.
 6. Copy this configuration information.
+<img width="581" alt="ss" src="https://user-images.githubusercontent.com/78360123/229700894-3673795f-3e9b-4e56-88ab-b8b8e9b72aec.png">
+
 
 ```
 mkdir secret && cd secret && touch firebaseConfig.json && pbpaste > firebaseConfig.json
