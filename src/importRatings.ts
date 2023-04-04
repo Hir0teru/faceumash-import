@@ -1,32 +1,56 @@
-const importRatings = async () => {
-  const admin = require('firebase-admin')
-  const serviceAccount = require('../secret/secretkey.json')
-  const data = require('../result/ratings.json')
+import * as admin from 'firebase-admin'
 
+const serviceAccount = require('../secret/secretkey.json')
+const rawData = require('../result/ratings.json')
+
+type Shard = {
+  count: number
+}
+
+type Rating = {
+  [id: string]: {
+    shards: Record<string, Shard>
+  }
+}
+
+type FirestoreData = {
+  ratings: Rating[]
+}
+
+const data: FirestoreData = rawData as FirestoreData
+
+const importRatings = async () => {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+    credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
   })
 
   const firestore = admin.firestore()
-  const promises = []
-  for (const collection in data) {
-    const collectionRef = firestore.collection(collection)
-    for (const document in data[collection]) {
-      const documentData = data[collection][document]
+  const promises: Promise<void>[] = []
+
+  const collection = 'ratings'
+  const collectionRef = firestore.collection(collection)
+
+  for (const ratingData of data.ratings) {
+    for (const document in ratingData) {
+      const documentData: {
+        shards?: Record<string, Shard>
+      } = ratingData[document]
       const documentRef = collectionRef.doc(document)
 
       const shards = documentData.shards
-      delete documentData.shards
+      if (shards) {
+        delete documentData.shards
 
-      const shardsCollection = documentRef.collection('shards')
-      for (const shard in shards) {
-        const shardRef = shardsCollection.doc(shard)
-        promises.push(shardRef.set(shards[shard]))
+        const shardsCollection = documentRef.collection('shards')
+        for (const shard in shards) {
+          const shardRef = shardsCollection.doc(shard)
+          const shardData: Shard = shards[shard]
+          promises.push(shardRef.set(shardData).then(() => {}))
+        }
       }
-
-      promises.push(documentRef.set(documentData))
     }
   }
+
   await Promise.all(promises)
   console.log('success')
 }
